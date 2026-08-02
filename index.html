@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>window.__SUPABASE_URL__='https://flvshacazleoplaetyab.supabase.co';window.__SUPABASE_ANON_KEY__='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsdnNoYWNhemxlb3BsYWV0eWFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTY1ODgsImV4cCI6MjEwMDg5MjU4OH0.dR-29vDtGV2ENKJqyJmYmu_Hq00My_KGGLgYyGcY8ks';</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4EEE4">
+<title>Tide — Live</title>
+<style>
+  :root {
+    --cream:#F4EEE4; --ink:#5A4E45; --muted:#B0A392; --header:#B8AB9C;
+    --label:#6B564D; --sub:#A2917F; --card:rgba(255,255,255,0.55);
+    --hair:rgba(0,0,0,0.07); --bar:rgba(198,140,132,0.30); --orange:#E68F44;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; }
+  body {
+    background:var(--cream); color:var(--ink); min-height:100vh;
+    font-family:-apple-system,"Quicksand",system-ui,"Segoe UI",Roboto,sans-serif;
+    padding:calc(env(safe-area-inset-top) + 22px) 22px calc(env(safe-area-inset-bottom) + 40px);
+    max-width:560px; margin:0 auto;
+  }
+  header { text-align:center; margin-bottom:26px; }
+  .title { font-size:15px; font-weight:600; letter-spacing:0.06em; color:var(--header); }
+  .who { font-size:13px; color:var(--muted); margin-top:4px; }
+  .stats { display:flex; align-items:stretch; justify-content:center; margin:8px 0 6px; }
+  .stat { flex:1; text-align:center; }
+  .stat .val { font-size:50px; font-weight:600; letter-spacing:-0.01em; color:var(--ink);
+               font-variant-numeric:tabular-nums; line-height:1; }
+  .stat .lab { font-size:12px; font-weight:600; letter-spacing:0.09em; text-transform:uppercase;
+               color:var(--muted); margin-top:8px; }
+  .divider { width:1px; background:linear-gradient(180deg,transparent,var(--hair),transparent); margin:6px 0; }
+  .status { text-align:center; font-size:14px; color:var(--muted); min-height:18px; margin:14px 0 8px; }
+  .bars { display:flex; align-items:flex-end; justify-content:center; gap:6px; height:44px; margin-bottom:8px; }
+  .bar { width:8px; border-radius:4px; background:var(--bar); }
+  .break-sep { width:1px; align-self:stretch; margin:6px 3px; background:var(--hair); }
+  .active-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--orange);
+                margin-right:6px; animation:pulse 1.6s ease-in-out infinite; vertical-align:middle; }
+  @keyframes pulse { 0%,100%{opacity:.4;transform:scale(.85)} 50%{opacity:1;transform:scale(1.1)} }
+  .feed { margin-top:28px; }
+  .feed-title { font-size:12px; font-weight:600; letter-spacing:0.09em; text-transform:uppercase;
+                color:var(--muted); margin-bottom:12px; }
+  .entry { background:var(--card); border-radius:20px; padding:16px; margin-bottom:12px; }
+  .entry .time { font-size:12px; font-weight:600; letter-spacing:0.04em; color:var(--muted); margin-bottom:8px; }
+  .entry .text { font-size:16px; line-height:1.4; }
+  .entry img, .entry video { width:100%; border-radius:14px; margin-bottom:8px; display:block; }
+  .foot { text-align:center; color:var(--muted); font-size:12px; margin-top:30px; line-height:1.5; }
+  .ended { text-align:center; color:var(--sub); font-size:15px; margin-top:40px; }
+  .arrival { text-align:center; background:var(--card); border-radius:24px; padding:28px 20px; margin-bottom:22px; }
+  .arrival .moonc { display:block; margin:0 auto 6px; width:60px; height:60px; }
+  .arrival .name { font-size:30px; font-weight:700; color:var(--ink); margin:6px 0 2px; }
+  .arrival .when { font-size:15px; color:var(--label); font-weight:600; }
+  .arrival .measures { font-size:16px; color:var(--label); font-weight:600; margin-top:8px; }
+  .arrival .labor { font-size:13px; color:var(--muted); font-weight:500; margin-top:4px; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="title">TIDE</div>
+    <div class="who" id="who">Following along</div>
+  </header>
+
+  <main id="main">
+    <div class="arrival" id="arrival" style="display:none"></div>
+    <div class="stats">
+      <div class="stat"><div class="val" id="lastVal">—</div><div class="lab">Last lasted</div></div>
+      <div class="divider"></div>
+      <div class="stat"><div class="val" id="sinceVal">—</div><div class="lab">Apart</div></div>
+    </div>
+    <div class="status" id="status"></div>
+    <div class="bars" id="bars"></div>
+
+    <div class="feed">
+      <div class="feed-title">Updates</div>
+      <div id="feed"></div>
+    </div>
+  </main>
+
+  <div class="foot">
+    This private page updates on its own — no need to refresh.<br>
+    <span id="footState"></span>
+  </div>
+
+<script>
+// ---- Config: injected at deploy, or demo mode for a standalone preview. ----
+const CONFIG = {
+  supabaseUrl: window.__SUPABASE_URL__ || "",
+  anonKey: window.__SUPABASE_ANON_KEY__ || "",
+};
+const params = new URLSearchParams(location.search);
+const TOKEN = params.get("t") || "";
+const DEMO = params.get("demo") === "1" || !CONFIG.supabaseUrl;
+
+function fmt(sec) {
+  if (sec == null) return "—";
+  sec = Math.max(0, Math.round(sec));
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return m + ":" + String(s).padStart(2, "0");
+}
+function timeStr(d) {
+  // Day-aware — labor can span several days, so a bare time is ambiguous.
+  const date = new Date(d), now = new Date();
+  const t = date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const sameDay = (a, b) => a.toDateString() === b.toDateString();
+  const yest = new Date(now); yest.setDate(now.getDate() - 1);
+  if (sameDay(date, now)) return t;
+  if (sameDay(date, yest)) return "Yesterday · " + t;
+  return date.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }) + " · " + t;
+}
+
+// Break detection — must mirror Swift `Session.classifiedGaps` exactly so the
+// shared page reads the same as the app: a gap in tracking is not a gap in
+// labor (master prompt §3). `done` is completed contractions, oldest→newest.
+function classifyGaps(done) {
+  const RULE = { preRhythmFloor: 50 * 60, mult: 4, minBreak: 20 * 60, window: 4, minSamples: 3 };
+  const median = xs => {
+    if (!xs.length) return 0;
+    const s = [...xs].sort((a, b) => a - b), n = s.length;
+    return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2;
+  };
+  const out = [], real = [];
+  for (let i = 1; i < done.length; i++) {
+    const g = (new Date(done[i].start) - new Date(done[i - 1].start)) / 1000;
+    const recent = real.slice(-RULE.window);
+    let isBreak;
+    if (recent.length >= RULE.minSamples) {
+      isBreak = g > Math.max(median(recent) * RULE.mult, RULE.minBreak);
+    } else {
+      isBreak = g > RULE.preRhythmFloor;
+    }
+    out.push({ seconds: g, isBreak });
+    if (!isBreak) real.push(g);
+  }
+  return out;
+}
+
+let state = null;      // { contractions:[{start,end}], updates:[{timestamp,text,photo_url}], is_sharing, active_start }
+let activeStart = null;
+
+async function fetchState() {
+  if (DEMO) return demoState();
+  const url = `${CONFIG.supabaseUrl}/rest/v1/sessions`
+    + `?share_token=eq.${encodeURIComponent(TOKEN)}`
+    + `&is_sharing=eq.true`
+    + `&select=is_sharing,contractions(start_time,end_time),update_entries(timestamp,text,photo_url)`;
+  const res = await fetch(url, { headers: { apikey: CONFIG.anonKey, Authorization: `Bearer ${CONFIG.anonKey}` } });
+  if (!res.ok) throw new Error("fetch failed");
+  const rows = await res.json();
+  if (!rows.length) return null;      // token invalid or sharing stopped
+  const r = rows[0];
+  return {
+    is_sharing: r.is_sharing,
+    birth: r.birth || null,   // present only once the user announces it
+    contractions: (r.contractions || [])
+      .map(c => ({ start: c.start_time, end: c.end_time }))
+      .sort((a, b) => new Date(a.start) - new Date(b.start)),
+    updates: (r.update_entries || [])
+      .map(u => ({ timestamp: u.timestamp, text: u.text, photo: u.photo_url }))
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)),
+  };
+}
+
+function render() {
+  if (!state) {
+    document.getElementById("main").innerHTML =
+      `<div class="ended">This session has ended.<br>Thanks for following along. 💛</div>`;
+    document.getElementById("footState").textContent = "";
+    return;
+  }
+  // Arrival celebration — shown only when the user has announced the birth.
+  const arrivalEl = document.getElementById("arrival");
+  if (state.birth) {
+    const b = state.birth;
+    const when = new Date(b.bornAt);
+    const parts = [];
+    if (b.weightGrams != null) parts.push(fmtWeight(b.weightGrams));
+    if (b.heightCm != null) parts.push(fmtHeight(b.heightCm));
+    arrivalEl.innerHTML =
+      `<canvas class="moonc" width="120" height="120"></canvas>`
+      + `<div class="name">${b.name ? escapeHtml(b.name) + " has arrived" : "Baby has arrived"} 💛</div>`
+      + `<div class="when">born ${when.toLocaleDateString([], {month:"long",day:"numeric",year:"numeric"})} at ${when.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}</div>`
+      + (parts.length ? `<div class="measures">${parts.join("  ·  ")}</div>` : "")
+      + (b.laborSeconds ? `<div class="labor">after ${fmtLabor(b.laborSeconds)} of labor</div>` : "");
+    arrivalEl.style.display = "block";
+    const cv = arrivalEl.querySelector(".moonc");
+    if (cv) drawMoon(cv.getContext("2d"), 120, moonPhase(when));
+  } else {
+    arrivalEl.style.display = "none";
+  }
+
+  const done = state.contractions.filter(c => c.end);
+  const last = done[done.length - 1];
+  activeStart = state.contractions.find(c => !c.end)?.start || null;
+  const gaps = classifyGaps(done);
+  const realGaps = gaps.filter(g => !g.isBreak).map(g => g.seconds);
+
+  document.getElementById("lastVal").textContent =
+    last ? fmt((new Date(last.end) - new Date(last.start)) / 1000) : "—";
+
+  // "Apart" — break-aware: the last real interval, or "—" when there's no
+  // current rhythm (right after a break). Never a stale growing number.
+  const lastGap = gaps[gaps.length - 1];
+  document.getElementById("sinceVal").textContent =
+    (lastGap && !lastGap.isBreak) ? fmt(lastGap.seconds) : "—";
+
+  // Status line — quiet, plain, never alarmist; only real gaps feed it.
+  const status = document.getElementById("status");
+  if (activeStart) {
+    status.innerHTML = `<span class="active-dot"></span>A contraction is happening now`;
+  } else if (realGaps.length >= 3) {
+    const recent = realGaps.slice(-3);
+    const avg = recent.reduce((a, b) => a + b, 0) / recent.length;
+    const spread = Math.max(...recent) - Math.min(...recent);
+    status.textContent = (avg <= 600 && spread <= 90) ? "Contractions are becoming regular." : "";
+  } else {
+    status.textContent = "";
+  }
+
+  // History bars — a faint divider marks a break in tracking (clusters, not one line).
+  const start = Math.max(0, done.length - 16);
+  const shown = done.slice(start);
+  const maxDur = Math.max(60, ...shown.map(c => (new Date(c.end) - new Date(c.start)) / 1000));
+  document.getElementById("bars").innerHTML = shown.map((c, idx) => {
+    const globalIdx = start + idx;
+    const breakBefore = globalIdx > 0 && gaps[globalIdx - 1] && gaps[globalIdx - 1].isBreak;
+    const d = (new Date(c.end) - new Date(c.start)) / 1000;
+    const bar = `<div class="bar" style="height:${11 + (d / maxDur) * 30}px"></div>`;
+    return (breakBefore ? `<div class="break-sep"></div>` : "") + bar;
+  }).join("");
+
+  // Updates feed. Media URL may be a photo or a video — pick the tag by extension.
+  const mediaHtml = (url) => {
+    if (!url) return "";
+    const clean = url.split("?")[0].toLowerCase();
+    return (clean.endsWith(".mp4") || clean.endsWith(".mov") || clean.endsWith(".m4v"))
+      ? `<video src="${url}" controls playsinline preload="metadata"></video>`
+      : `<img src="${url}" alt="">`;
+  };
+  document.getElementById("feed").innerHTML = state.updates.map(u => `
+    <div class="entry">
+      <div class="time">${timeStr(u.timestamp)}</div>
+      ${mediaHtml(u.photo)}
+      ${u.text ? `<div class="text">${escapeHtml(u.text)}</div>` : ""}
+    </div>`).join("") || `<div class="entry"><div class="text" style="color:var(--sub)">No updates yet.</div></div>`;
+}
+
+function tick() {
+  if (!state || !activeStart) return;
+  // Live elapsed of the in-progress contraction, for the follower.
+  const el = fmt((Date.now() - new Date(activeStart).getTime()) / 1000);
+  document.getElementById("status").innerHTML =
+    `<span class="active-dot"></span>A contraction is happening now · ${el}`;
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+function fmtWeight(g) {
+  const totalOz = g / 28.349523;
+  let lb = Math.floor(totalOz / 16), oz = Math.round(totalOz - lb * 16);
+  if (oz === 16) { lb++; oz = 0; }
+  return `${lb} lb ${oz} oz`;
+}
+function fmtHeight(cm) { return `${Math.round(cm / 2.54 * 2) / 2} in`; }
+function fmtLabor(sec) {
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
+  return h > 0 ? `${h} hr ${m} min` : `${m} min`;
+}
+// Real lunar phase (0 new, .5 full) — mirrors Swift Moon.phase.
+function moonPhase(date) {
+  const syn = 29.530588853, known = 947182440000;
+  let p = (((date.getTime() - known) / 86400000) % syn) / syn;
+  return p < 0 ? p + 1 : p;
+}
+// Draw the accurate phase on a canvas (same method as the app).
+function drawMoon(ctx, size, phase, lit = "#FBF1DC", shadow = "#D9C7B1") {
+  const r = size / 2, cx = r, cy = r;
+  ctx.clearRect(0, 0, size, size);
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.clip();
+  ctx.fillStyle = lit; ctx.fillRect(0, 0, size, size);
+  const waxing = phase < 0.5, illum = (1 - Math.cos(2 * Math.PI * phase)) / 2, gibbous = illum > 0.5;
+  ctx.fillStyle = shadow;
+  if (waxing) ctx.fillRect(0, 0, cx, size); else ctx.fillRect(cx, 0, cx, size);
+  const termRx = r * Math.abs(Math.cos(2 * Math.PI * phase));
+  ctx.fillStyle = gibbous ? lit : shadow;
+  ctx.beginPath(); ctx.ellipse(cx, cy, termRx, r, 0, 0, 2 * Math.PI); ctx.fill();
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(cx, cy, r - 0.5, 0, 2 * Math.PI);
+  ctx.strokeStyle = "rgba(180,163,146,.45)"; ctx.lineWidth = 1; ctx.stroke();
+}
+
+async function poll() {
+  try {
+    state = await fetchState();
+    render();
+    document.getElementById("footState").textContent =
+      state ? "Live · updated " + timeStr(Date.now()) : "";
+  } catch (e) {
+    document.getElementById("footState").textContent = "Reconnecting…";
+  }
+}
+
+// ---- Demo data so this page renders standalone (?demo=1) ----
+function demoState() {
+  const now = Date.now();
+  const c = [];
+  const gaps = [300,306,294,2700,300,288], durs = [42,45,48,50,52,55,58];  // includes a ~45-min break
+  let t = now - (gaps.reduce((a,b)=>a+b,0) + durs[durs.length-1]) * 1000;
+  for (let i = 0; i < durs.length; i++) { c.push({ start:new Date(t).toISOString(), end:new Date(t+durs[i]*1000).toISOString() }); if (i < gaps.length) t += gaps[i]*1000; }
+  const born = params.get("born") ? {
+    name: "Amara", bornAt: new Date(now - 20 * 60000).toISOString(),
+    weightGrams: 3289, heightCm: 51, laborSeconds: 9 * 3600 + 12 * 60,
+  } : null;
+  return {
+    is_sharing:true, contractions:c, birth: born,
+    updates:[
+      { timestamp:new Date(now-3*60000).toISOString(), text:"Contractions getting closer. Doing okay 💛", photo:null },
+      { timestamp:new Date(now-12*60000).toISOString(), text:"Settled in room 4. Feeling calm.", photo:null },
+      { timestamp:new Date(now-24*60000).toISOString(), text:"Water broke around 1am. Heading in soon.", photo:null },
+    ],
+  };
+}
+
+poll();
+setInterval(poll, 15000);   // §10: poll every 15s (Realtime is a later upgrade)
+setInterval(tick, 1000);    // live "since last" counter
+</script>
+</body>
+</html>
