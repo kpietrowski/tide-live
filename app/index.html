@@ -7,34 +7,69 @@
 <title>Get Tide — Contraction Timer</title>
 <meta property="og:title" content="Tide — Contraction Timer">
 <meta property="og:description" content="A calm companion for labor. One tap to time contractions; a private link keeps family updated.">
+<meta property="og:image" content="https://live.katiep.me/app-preview.png">
+<meta property="og:url" content="https://live.katiep.me/app">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://live.katiep.me/app-preview.png">
 <style>
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { margin:0; }
   body { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
     font-family:-apple-system,"Quicksand",system-ui,"Segoe UI",Roboto,sans-serif;
     background:#FAF8F5; color:#5A4E45; text-align:center;
-    padding:calc(env(safe-area-inset-top) + 28px) 26px calc(env(safe-area-inset-bottom) + 28px); }
-  .wave { font-size:70px; font-weight:800; letter-spacing:-3px; color:#E68F44; line-height:1; }
+    padding:calc(env(safe-area-inset-top) + 26px) 26px calc(env(safe-area-inset-bottom) + 26px); }
+  .wave { font-size:66px; font-weight:800; letter-spacing:-3px; color:#E68F44; line-height:1; }
   .tag { font-size:18px; font-weight:600; color:#6B564D; margin-top:6px; }
-  p { font-size:17px; line-height:1.5; max-width:320px; margin:20px 0 0; }
-  a.btn { display:inline-block; margin-top:26px; background:#E68F44; color:#fff; font-weight:700; font-size:18px;
+  p { font-size:17px; line-height:1.5; max-width:320px; margin:18px 0 0; }
+  a.btn { display:inline-block; margin-top:24px; background:#E68F44; color:#fff; font-weight:700; font-size:18px;
     text-decoration:none; padding:17px 30px; border-radius:18px; box-shadow:0 6px 20px rgba(230,143,68,.35); }
-  .hint { font-size:13px; color:#A2917F; margin-top:26px; max-width:300px; line-height:1.5; }
+  /* Instagram/Facebook in-app-browser guidance — hidden until detected. */
+  #iab { display:none; margin-top:22px; max-width:340px; background:#FFF3E8; border:1.5px solid #F0C9A3;
+    border-radius:16px; padding:16px 18px; }
+  #iab .big { font-size:16px; font-weight:700; color:#6B4A2E; line-height:1.45; }
+  #iab .steps { font-size:14px; color:#8a6a4a; margin-top:8px; line-height:1.6; }
+  #iab b { color:#6B4A2E; }
+  .hint { font-size:13px; color:#A2917F; margin-top:20px; max-width:300px; line-height:1.5; }
 </style>
 </head>
 <body>
   <div class="wave">Tide</div>
   <div class="tag">A calm companion for labor.</div>
   <p>One tap to time each contraction — and a private link that keeps your partner and family updated.</p>
+
   <a class="btn" id="dl" href="https://apps.apple.com/app/id6795967947">Download on the App Store</a>
-  <div class="hint">If this page looks blank in Instagram, tap <b>•••</b> (top-right) → <b>Open in external browser</b>.</div>
+
+  <div id="iab">
+    <div class="big">Instagram blocks App&nbsp;Store links.</div>
+    <div class="steps">Tap the <b>•••</b> at the <b>top-right</b> ↗<br>then choose <b>“Open in external browser.”</b></div>
+  </div>
+
+  <div class="hint" id="normalHint">Opens the App Store to download Tide.</div>
+
 <script>
-  // Prefer opening the App Store APP directly — this bypasses the blank
-  // apps.apple.com render inside Instagram's/Facebook's in-app webview.
   var web = "https://apps.apple.com/app/id6795967947";
-  try { window.location.href = "itms-apps://apps.apple.com/app/id6795967947"; } catch (e) {}
-  // If we're still here after a moment (scheme blocked), fall back to the web page.
-  setTimeout(function () { if (!document.hidden) window.location.href = web; }, 1600);
+  var ua  = navigator.userAgent || "";
+  // Instagram, Facebook, Messenger, etc. all use restricted in-app webviews.
+  var inApp = /Instagram|FBAN|FBAV|FB_IAB|Messenger|Line|Snapchat|Twitter|Pinterest/i.test(ua);
+  var btn = document.getElementById("dl");
+
+  // Fire a cookieless visit ping (survives navigation via sendBeacon).
+  try { navigator.sendBeacon("https://flvshacazleoplaetyab.functions.supabase.co/track?p=app"); } catch (e) {}
+
+  if (inApp) {
+    // In-app browsers block the App Store hand-off. Force Safari via the
+    // x-safari- scheme, and show clear "open in browser" guidance as backup.
+    btn.href = "x-safari-" + web;
+    document.getElementById("iab").style.display = "block";
+    document.getElementById("normalHint").style.display = "none";
+    // Best-effort auto-escape to Safari.
+    setTimeout(function () { try { window.location.href = "x-safari-" + web; } catch (e) {} }, 300);
+  } else {
+    // Real browser → straight to the App Store.
+    btn.href = web;
+    setTimeout(function () { window.location.href = web; }, 400);
+  }
 </script>
 </body>
 </html>
