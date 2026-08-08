@@ -139,15 +139,13 @@ let activeStart = null;
 
 async function fetchState() {
   if (DEMO) return demoState();
-  const url = `${CONFIG.supabaseUrl}/rest/v1/sessions`
-    + `?share_token=eq.${encodeURIComponent(TOKEN)}`
-    + `&is_sharing=eq.true`
-    + `&select=is_sharing,contractions(start_time,end_time),update_entries(timestamp,text,photo_url)`;
-  const res = await fetch(url, { headers: { apikey: CONFIG.anonKey, Authorization: `Bearer ${CONFIG.anonKey}` } });
+  // Read through the token-scoped `feed` function only — never the tables
+  // directly. Presenting a wrong/absent token reveals nothing, so no one can
+  // enumerate other families' sessions with the public key.
+  const res = await fetch(`${CONFIG.supabaseUrl}/functions/v1/feed?t=${encodeURIComponent(TOKEN)}`);
   if (!res.ok) throw new Error("fetch failed");
-  const rows = await res.json();
-  if (!rows.length) return null;      // token invalid or sharing stopped
-  const r = rows[0];
+  const r = await res.json();
+  if (!r || !r.is_sharing) return null;      // token invalid or sharing stopped
   return {
     is_sharing: r.is_sharing,
     birth: r.birth || null,   // present only once the user announces it
