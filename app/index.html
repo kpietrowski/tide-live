@@ -16,40 +16,36 @@
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { margin:0; }
   body { min-height:100vh; font-family:-apple-system,"Quicksand",system-ui,"Segoe UI",Roboto,sans-serif;
-    background:#FAF8F5; color:#5A4E45; text-align:center; }
+    background:#FAF8F5; color:#5A4E45; }
 
-  /* ---- Instagram/Facebook in-app instruction (hidden until detected) ---- */
+  /* Instagram/Facebook in-app instruction (hidden until detected). */
   #iab { display:none; }
-
-  /* GIANT curved arrow pinned to the top-right, jabbing at the ••• in the bar. */
-  .arrow { position:fixed; top:-6px; right:2px; z-index:30; width:150px; height:150px;
-    animation:bob .9s ease-in-out infinite; pointer-events:none; }
-  @keyframes bob { 0%,100%{ transform:translate(0,0) rotate(0); } 50%{ transform:translate(10px,-14px) rotate(-3deg); } }
+  /* Static arrow (no animation), underside curve, pointing up at the ••• in the bar. */
+  .arrow { position:fixed; top:-8px; right:2px; z-index:30; width:154px; height:154px; pointer-events:none; }
 
   .wrap { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding:calc(env(safe-area-inset-top) + 150px) 22px calc(env(safe-area-inset-bottom) + 34px); }
+    padding:calc(env(safe-area-inset-top) + 40px) 26px calc(env(safe-area-inset-bottom) + 34px); }
 
-  /* Non-IG (real browser) branding — small, since it just redirects anyway. */
+  /* Non-IG branding (real browser just redirects, so this is only a brief flash). */
+  .brand { text-align:center; }
   .brand .wave { font-size:60px; font-weight:800; letter-spacing:-3px; color:#E68F44; line-height:1; }
   .brand .tag { font-size:18px; font-weight:600; color:#6B564D; margin-top:6px; }
 
-  /* BIG exaggerated instruction. */
-  .huge { display:none; }
-  .huge .lead { font-size:26px; font-weight:800; color:#6B564D; letter-spacing:-.02em; }
-  .huge .step { font-size:40px; font-weight:900; line-height:1.06; letter-spacing:-.03em; color:#5A4E45; margin-top:18px; }
-  .huge .step em { font-style:normal; color:#E68F44; }
-  .huge .mid { font-size:30px; font-weight:800; color:#B0A392; margin:14px 0; }
-  .huge .browser { display:inline-block; margin-top:6px; background:#E68F44; color:#fff;
-    font-size:30px; font-weight:900; letter-spacing:-.02em; padding:14px 22px; border-radius:20px;
-    box-shadow:0 10px 26px rgba(230,143,68,.4); }
-  .huge .foot { font-size:17px; color:#A2917F; margin-top:30px; line-height:1.5; }
+  /* Big, left-aligned, mostly-unbold instruction. */
+  .huge { display:none; width:100%; max-width:360px; text-align:left; }
+  .huge .step { font-size:33px; font-weight:500; line-height:1.22; color:#5A4E45; margin:0; }
+  .huge .step .dots { font-weight:800; color:#E68F44; }
+  .huge .step .ext  { font-weight:800; color:#5A4E45; }
+  .huge .then { font-size:24px; font-weight:500; color:#B0A392; margin:16px 0; }
+  .huge .foot { font-size:16px; font-weight:500; color:#A2917F; margin-top:30px; line-height:1.5; }
 </style>
 </head>
 <body>
   <div id="iab">
-    <svg class="arrow" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M20 142 C 16 80, 50 34, 126 26" stroke="#E68F44" stroke-width="12" stroke-linecap="round"/>
-      <path d="M96 16 L 132 22 L 120 54" stroke="#E68F44" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <svg class="arrow" viewBox="0 0 154 154" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <!-- underside (concave-up) curve sweeping up to the top-right -->
+      <path d="M18 74 C 40 140, 108 138, 134 40" stroke="#E68F44" stroke-width="12" stroke-linecap="round"/>
+      <path d="M112 30 L 140 38 L 128 66" stroke="#E68F44" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </div>
 
@@ -60,11 +56,9 @@
     </div>
 
     <div class="huge" id="huge">
-      <div class="lead">To get Tide 👇</div>
-      <div class="step">1. Tap the <em>•••</em> at the top&#8209;right ↗</div>
-      <div class="mid">then</div>
-      <div class="step">2. Tap</div>
-      <div class="browser">Open in external browser</div>
+      <div class="step">1. Tap the <span class="dots">•••</span> at the top&#8209;right ↗</div>
+      <div class="then">then</div>
+      <div class="step">2. Tap <span class="ext">Open in external browser</span></div>
       <div class="foot">Instagram can’t open the App Store — this gets you there in 2 taps. 💛</div>
     </div>
   </div>
@@ -73,15 +67,14 @@
   var web = "https://apps.apple.com/app/id6795967947";
   var ua  = navigator.userAgent || "";
   var inApp = /Instagram|FBAN|FBAV|FB_IAB|Messenger|Line|Snapchat|Pinterest/i.test(ua);
-  var preview = /[?&]preview=1/.test(location.search);   // see the IG view in any browser
+  var preview = /[?&]preview=1/.test(location.search);
   try { navigator.sendBeacon("https://flvshacazleoplaetyab.functions.supabase.co/track?p=app"); } catch (e) {}
   if (inApp || preview) {
     document.getElementById("iab").style.display = "block";
     document.getElementById("huge").style.display = "block";
-    document.getElementById("brand").style.display = "none";   // instruction is the whole page
+    document.getElementById("brand").style.display = "none";
     if (!preview) setTimeout(function () { try { window.location.href = "x-safari-" + web; } catch (e) {} }, 250);
   } else {
-    // Real browser → straight to the App Store (no button needed).
     setTimeout(function () { window.location.href = web; }, 350);
   }
 </script>
