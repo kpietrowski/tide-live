@@ -18,23 +18,22 @@
   body { min-height:100vh; font-family:-apple-system,"Quicksand",system-ui,"Segoe UI",Roboto,sans-serif;
     background:#FAF8F5; color:#5A4E45; }
 
-  /* Instagram/Facebook in-app instruction (hidden until detected). */
   #iab { display:none; }
-  /* Static arrow (no animation), underside curve, pointing up at the ••• in the bar. */
-  .arrow { position:fixed; top:-8px; right:2px; z-index:30; width:154px; height:154px; pointer-events:none; }
+  /* Static arrow sweeping up from underneath, tip pointing up-right at the ••• . */
+  .arrow { position:fixed; top:-6px; right:0; z-index:30; width:150px; height:150px; pointer-events:none; }
 
   .wrap { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
     padding:calc(env(safe-area-inset-top) + 40px) 26px calc(env(safe-area-inset-bottom) + 34px); }
 
-  /* Non-IG branding (real browser just redirects, so this is only a brief flash). */
   .brand { text-align:center; }
   .brand .wave { font-size:60px; font-weight:800; letter-spacing:-3px; color:#E68F44; line-height:1; }
   .brand .tag { font-size:18px; font-weight:600; color:#6B564D; margin-top:6px; }
 
-  /* Big, left-aligned, mostly-unbold instruction. */
   .huge { display:none; width:100%; max-width:360px; text-align:left; }
+  .title { font-size:27px; font-weight:800; letter-spacing:-.02em; color:#5A4E45; margin-bottom:26px; line-height:1.1; }
+  .title .tide { color:#E68F44; }
   .huge .step { font-size:33px; font-weight:500; line-height:1.22; color:#5A4E45; margin:0; }
-  .huge .step .dots { font-weight:800; color:#E68F44; }
+  .huge .step .dots { font-weight:800; color:#E68F44; letter-spacing:1px; }
   .huge .step .ext  { font-weight:800; color:#5A4E45; }
   .huge .then { font-size:24px; font-weight:500; color:#B0A392; margin:16px 0; }
   .huge .foot { font-size:16px; font-weight:500; color:#A2917F; margin-top:30px; line-height:1.5; }
@@ -42,10 +41,9 @@
 </head>
 <body>
   <div id="iab">
-    <svg class="arrow" viewBox="0 0 154 154" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <!-- underside (concave-up) curve sweeping up to the top-right -->
-      <path d="M18 74 C 40 140, 108 138, 134 40" stroke="#E68F44" stroke-width="12" stroke-linecap="round"/>
-      <path d="M112 30 L 140 38 L 128 66" stroke="#E68F44" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <svg class="arrow" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M26 112 C 46 150, 118 150, 140 34" stroke="#E68F44" stroke-width="13" stroke-linecap="round"/>
+      <path d="M112 30 L 143 26 L 148 58" stroke="#E68F44" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </div>
 
@@ -56,6 +54,7 @@
     </div>
 
     <div class="huge" id="huge">
+      <div class="title"><span class="tide">Tide</span> — Contraction Timer</div>
       <div class="step">1. Tap the <span class="dots">•••</span> at the top&#8209;right ↗</div>
       <div class="then">then</div>
       <div class="step">2. Tap <span class="ext">Open in external browser</span></div>
