@@ -20,7 +20,7 @@
 
   #iab { display:none; }
   /* Static arrow sweeping up from underneath, tip pointing up-right at the ••• . */
-  .arrow { position:fixed; top:-6px; right:0; z-index:30; width:150px; height:150px; pointer-events:none; }
+  .arrow { position:fixed; top:6px; right:34px; z-index:30; width:120px; height:120px; pointer-events:none; }
 
   .wrap { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
     padding:calc(env(safe-area-inset-top) + 40px) 26px calc(env(safe-area-inset-bottom) + 34px); }
@@ -32,8 +32,8 @@
   .huge { display:none; width:100%; max-width:360px; text-align:left; }
   .title { font-size:27px; font-weight:800; letter-spacing:-.02em; color:#5A4E45; margin-bottom:26px; line-height:1.1; }
   .title .tide { color:#E68F44; }
-  .huge .step { font-size:23px; font-weight:500; line-height:1.22; color:#5A4E45; margin:0; }
-  .huge .step .dots { font-weight:800; color:#E68F44; letter-spacing:1px; }
+  .huge .step { font-size:23px; font-weight:500; line-height:1.22; color:#5A4E45; margin:0 0 14px; }
+  .huge .step .dots { font-weight:800; color:#5A4E45; letter-spacing:1px; }
   .huge .step .ext  { font-weight:800; color:#5A4E45; }
   .huge .then { font-size:17px; font-weight:500; color:#B0A392; margin:16px 0; }
   .huge .foot { font-size:16px; font-weight:500; color:#A2917F; margin-top:30px; line-height:1.5; }
@@ -41,9 +41,9 @@
 </head>
 <body>
   <div id="iab">
-    <svg class="arrow" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M26 112 C 46 150, 118 150, 140 34" stroke="#E68F44" stroke-width="13" stroke-linecap="round"/>
-      <path d="M112 30 L 143 26 L 148 58" stroke="#E68F44" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+    <svg class="arrow" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M18 104 C 34 52, 66 20, 102 12" stroke="#E68F44" stroke-width="5" stroke-linecap="round"/>
+      <path d="M80 12 L 104 11 L 100 35" stroke="#E68F44" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </div>
 
@@ -54,8 +54,7 @@
     </div>
 
     <div class="huge" id="huge">
-      <div class="step">1. Tap the <span class="dots">•••</span> at the top&#8209;right ↗</div>
-      <div class="then">then</div>
+      <div class="step">1. Tap <span class="dots">•••</span></div>
       <div class="step">2. Tap <span class="ext">Open in external browser</span></div>
     </div>
   </div>
