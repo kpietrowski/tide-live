@@ -18,39 +18,38 @@
   body { min-height:100vh; font-family:-apple-system,"Quicksand",system-ui,"Segoe UI",Roboto,sans-serif;
     background:#FAF8F5; color:#5A4E45; text-align:center; }
 
-  /* ---- In-app-browser instruction (Instagram/Facebook). Hidden until detected. ---- */
+  /* ---------- Instagram/Facebook in-app instruction (hidden until detected) ---------- */
   #iab { display:none; }
-  #iab .point { position:fixed; top:8px; right:14px; z-index:20; display:flex; flex-direction:column;
-    align-items:flex-end; }
-  #iab .arrow { font-size:56px; line-height:1; color:#E68F44; transform:rotate(8deg);
-    animation:bob 1s ease-in-out infinite; }
-  @keyframes bob { 0%,100%{ transform:translateY(0) rotate(8deg);} 50%{ transform:translateY(-9px) rotate(8deg);} }
-  #iab .callout { margin-top:2px; background:#6B4A2E; color:#fff; font-weight:700; font-size:15px;
-    padding:10px 14px; border-radius:14px; max-width:230px; text-align:right; line-height:1.4;
-    box-shadow:0 8px 24px rgba(0,0,0,.18); }
-  #iab .callout b { color:#FFD9B0; }
+  /* Big curved arrow pinned to the top-right, pointing up at the ••• in the browser bar. */
+  .arrow { position:fixed; top:4px; right:10px; z-index:30; width:104px; height:104px;
+    animation:bob 1.05s ease-in-out infinite; pointer-events:none; }
+  @keyframes bob { 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(6px,-10px); } }
+  .callout { position:fixed; top:118px; right:14px; z-index:30; max-width:250px; text-align:right;
+    background:#6B4A2E; color:#fff; font-weight:700; font-size:16px; line-height:1.4;
+    padding:13px 16px; border-radius:16px; box-shadow:0 10px 28px rgba(0,0,0,.20); }
+  .callout b { color:#FFD9B0; }
 
   .wrap { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding:calc(env(safe-area-inset-top) + 120px) 26px calc(env(safe-area-inset-bottom) + 30px); }
-  .wave { font-size:64px; font-weight:800; letter-spacing:-3px; color:#E68F44; line-height:1; }
+    padding:calc(env(safe-area-inset-top) + 30px) 26px calc(env(safe-area-inset-bottom) + 30px); }
+  .wave { font-size:62px; font-weight:800; letter-spacing:-3px; color:#E68F44; line-height:1; }
   .tag { font-size:18px; font-weight:600; color:#6B564D; margin-top:6px; }
   p { font-size:16.5px; line-height:1.5; max-width:320px; margin:16px 0 0; }
-  .steps { display:none; margin-top:22px; max-width:330px; text-align:left; }
-  .steps .row { display:flex; align-items:flex-start; gap:12px; margin-bottom:12px; font-size:16px; line-height:1.45; }
-  .steps .n { flex:0 0 26px; height:26px; border-radius:50%; background:#E68F44; color:#fff; font-weight:800;
-    font-size:14px; display:flex; align-items:center; justify-content:center; margin-top:1px; }
+  .steps { display:none; margin-top:24px; max-width:340px; text-align:left; }
+  .steps .row { display:flex; align-items:flex-start; gap:12px; margin-bottom:14px; font-size:16.5px; line-height:1.45; }
+  .steps .n { flex:0 0 28px; height:28px; border-radius:50%; background:#E68F44; color:#fff; font-weight:800;
+    font-size:15px; display:flex; align-items:center; justify-content:center; }
   .steps b { color:#6B4A2E; }
-  a.btn { display:inline-block; margin-top:24px; background:#E68F44; color:#fff; font-weight:700; font-size:18px;
+  a.btn { display:inline-block; margin-top:26px; background:#E68F44; color:#fff; font-weight:700; font-size:18px;
     text-decoration:none; padding:16px 30px; border-radius:18px; box-shadow:0 6px 20px rgba(230,143,68,.35); }
 </style>
 </head>
 <body>
-  <!-- Points at the ••• in the Instagram/Facebook top bar -->
   <div id="iab">
-    <div class="point">
-      <div class="arrow">&#x2197;&#xFE0F;</div>
-      <div class="callout">Tap <b>•••</b> up here,<br>then <b>“Open in external browser.”</b></div>
-    </div>
+    <svg class="arrow" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M16 112 C 14 66, 40 30, 96 22" stroke="#E68F44" stroke-width="9" stroke-linecap="round"/>
+      <path d="M72 16 L 100 20 L 90 46" stroke="#E68F44" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="callout">Tap the <b>•••</b> up here ↑<br>then <b>“Open in external browser.”</b></div>
   </div>
 
   <div class="wrap">
@@ -71,18 +70,12 @@
   var web = "https://apps.apple.com/app/id6795967947";
   var ua  = navigator.userAgent || "";
   var inApp = /Instagram|FBAN|FBAV|FB_IAB|Messenger|Line|Snapchat|Pinterest/i.test(ua);
-
-  // Cookieless visit ping.
   try { navigator.sendBeacon("https://flvshacazleoplaetyab.functions.supabase.co/track?p=app"); } catch (e) {}
-
   if (inApp) {
-    // Instagram/Facebook block the App Store hand-off, so make the instruction the star.
     document.getElementById("iab").style.display = "block";
     document.getElementById("steps").style.display = "block";
-    // Best-effort auto-escape (works on less-strict in-app browsers; harmless otherwise).
     setTimeout(function () { try { window.location.href = "x-safari-" + web; } catch (e) {} }, 250);
   } else {
-    // Real browser → straight to the App Store.
     setTimeout(function () { window.location.href = web; }, 350);
   }
 </script>
