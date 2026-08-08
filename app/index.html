@@ -70,11 +70,12 @@
   var web = "https://apps.apple.com/app/id6795967947";
   var ua  = navigator.userAgent || "";
   var inApp = /Instagram|FBAN|FBAV|FB_IAB|Messenger|Line|Snapchat|Pinterest/i.test(ua);
+  var preview = /[?&]preview=1/.test(location.search);   // see the IG view in any browser
   try { navigator.sendBeacon("https://flvshacazleoplaetyab.functions.supabase.co/track?p=app"); } catch (e) {}
-  if (inApp) {
+  if (inApp || preview) {
     document.getElementById("iab").style.display = "block";
     document.getElementById("steps").style.display = "block";
-    setTimeout(function () { try { window.location.href = "x-safari-" + web; } catch (e) {} }, 250);
+    if (!preview) setTimeout(function () { try { window.location.href = "x-safari-" + web; } catch (e) {} }, 250);
   } else {
     setTimeout(function () { window.location.href = web; }, 350);
   }
