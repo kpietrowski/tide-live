@@ -25,9 +25,10 @@
   .wrap { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
     padding:calc(env(safe-area-inset-top) + 40px) 26px calc(env(safe-area-inset-bottom) + 34px); }
 
-  .brand { text-align:center; }
-  .brand .wave { font-size:60px; font-weight:800; letter-spacing:-3px; color:#E68F44; line-height:1; }
-  .brand .tag { font-size:18px; font-weight:600; color:#6B564D; margin-top:6px; }
+  .logo { position:fixed; left:0; right:0; bottom:calc(env(safe-area-inset-bottom) + 30px);
+    text-align:center; z-index:10; }
+  .logo .wave { font-size:60px; font-weight:800; letter-spacing:-3px; color:#E68F44; line-height:1; }
+  .logo .tag { font-size:18px; font-weight:600; color:#6B564D; margin-top:6px; }
 
   .huge { display:none; width:100%; max-width:360px; text-align:left; }
   .title { font-size:27px; font-weight:800; letter-spacing:-.02em; color:#5A4E45; margin-bottom:26px; line-height:1.1; }
@@ -48,15 +49,15 @@
   </div>
 
   <div class="wrap">
-    <div class="brand" id="brand">
-      <div class="wave">Tide</div>
-      <div class="tag">A calm companion for labor.</div>
-    </div>
-
     <div class="huge" id="huge">
       <div class="step">1. Tap <span class="dots">•••</span></div>
       <div class="step">2. Tap <span class="ext">Open in external browser</span></div>
     </div>
+  </div>
+
+  <div class="logo">
+    <div class="wave">Tide</div>
+    <div class="tag">A calm companion for labor.</div>
   </div>
 
 <script>
@@ -68,7 +69,6 @@
   if (inApp || preview) {
     document.getElementById("iab").style.display = "block";
     document.getElementById("huge").style.display = "block";
-    document.getElementById("brand").style.display = "none";
     if (!preview) setTimeout(function () { try { window.location.href = "x-safari-" + web; } catch (e) {} }, 250);
   } else {
     setTimeout(function () { window.location.href = web; }, 350);
