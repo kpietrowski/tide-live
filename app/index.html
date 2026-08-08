@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FAF8F5">
+<title>Get Tide — Contraction Timer</title>
+<meta property="og:title" content="Tide — Contraction Timer">
+<meta property="og:description" content="A calm companion for labor. One tap to time contractions; a private link keeps family updated.">
+<style>
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; }
+  body { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-family:-apple-system,"Quicksand",system-ui,"Segoe UI",Roboto,sans-serif;
+    background:#FAF8F5; color:#5A4E45; text-align:center;
+    padding:calc(env(safe-area-inset-top) + 28px) 26px calc(env(safe-area-inset-bottom) + 28px); }
+  .wave { font-size:70px; font-weight:800; letter-spacing:-3px; color:#E68F44; line-height:1; }
+  .tag { font-size:18px; font-weight:600; color:#6B564D; margin-top:6px; }
+  p { font-size:17px; line-height:1.5; max-width:320px; margin:20px 0 0; }
+  a.btn { display:inline-block; margin-top:26px; background:#E68F44; color:#fff; font-weight:700; font-size:18px;
+    text-decoration:none; padding:17px 30px; border-radius:18px; box-shadow:0 6px 20px rgba(230,143,68,.35); }
+  .hint { font-size:13px; color:#A2917F; margin-top:26px; max-width:300px; line-height:1.5; }
+</style>
+</head>
+<body>
+  <div class="wave">Tide</div>
+  <div class="tag">A calm companion for labor.</div>
+  <p>One tap to time each contraction — and a private link that keeps your partner and family updated.</p>
+  <a class="btn" id="dl" href="https://apps.apple.com/app/id6795967947">Download on the App Store</a>
+  <div class="hint">If this page looks blank in Instagram, tap <b>•••</b> (top-right) → <b>Open in external browser</b>.</div>
+<script>
+  // Prefer opening the App Store APP directly — this bypasses the blank
+  // apps.apple.com render inside Instagram's/Facebook's in-app webview.
+  var web = "https://apps.apple.com/app/id6795967947";
+  try { window.location.href = "itms-apps://apps.apple.com/app/id6795967947"; } catch (e) {}
+  // If we're still here after a moment (scheme blocked), fall back to the web page.
+  setTimeout(function () { if (!document.hidden) window.location.href = web; }, 1600);
+</script>
+</body>
+</html>
