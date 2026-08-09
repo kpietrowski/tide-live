@@ -101,11 +101,10 @@ function timeStr(d) {
   // Day-aware — labor can span several days, so a bare time is ambiguous.
   const date = new Date(d), now = new Date();
   const t = date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  const sameDay = (a, b) => a.toDateString() === b.toDateString();
-  const yest = new Date(now); yest.setDate(now.getDate() - 1);
-  if (sameDay(date, now)) return t;
-  if (sameDay(date, yest)) return "Yesterday · " + t;
-  return date.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }) + " · " + t;
+  // Always show the date too (matches the app) — a bare time is ambiguous once
+  // labor runs past midnight, and family checking in later can't tell "when".
+  const d = date.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+  return d + " · " + t;
 }
 
 // Break detection — must mirror Swift `Session.classifiedGaps` exactly so the
