@@ -97,6 +97,15 @@ function fmt(sec) {
   const m = Math.floor(sec / 60), s = sec % 60;
   return m + ":" + String(s).padStart(2, "0");
 }
+function applyWho(state) {
+  // "Katie's labor" when she's told us her name; generic otherwise.
+  const el = document.getElementById("who");
+  if (!el) return;
+  const n = (state && state.host_name || "").trim();
+  el.textContent = n ? `${n}'s labor` : "Following along";
+  document.title = n ? `${n}'s labor — Tide` : "Tide — Live";
+}
+
 function timeStr(d) {
   // Day-aware — labor can span several days, so a bare time is ambiguous.
   const date = new Date(d), now = new Date();
@@ -158,6 +167,7 @@ async function fetchState() {
 }
 
 function render() {
+  applyWho(state);
   if (!state) {
     document.getElementById("main").innerHTML =
       `<div class="ended">This session has ended.<br>Thanks for following along. 💛</div>`;
