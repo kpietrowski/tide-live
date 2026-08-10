@@ -62,13 +62,15 @@
 
   <main id="main">
     <div class="arrival" id="arrival" style="display:none"></div>
-    <div class="stats">
-      <div class="stat"><div class="val" id="lastVal">—</div><div class="lab">Last lasted</div></div>
-      <div class="divider"></div>
-      <div class="stat"><div class="val" id="sinceVal">—</div><div class="lab">Apart</div></div>
+    <div id="timing">
+      <div class="stats">
+        <div class="stat"><div class="val" id="lastVal">—</div><div class="lab">Last lasted</div></div>
+        <div class="divider"></div>
+        <div class="stat"><div class="val" id="sinceVal">—</div><div class="lab">Apart</div></div>
+      </div>
+      <div class="status" id="status"></div>
+      <div class="bars" id="bars"></div>
     </div>
-    <div class="status" id="status"></div>
-    <div class="bars" id="bars"></div>
 
     <div class="feed">
       <div class="feed-title">Updates</div>
@@ -194,6 +196,11 @@ function render() {
   } else {
     arrivalEl.style.display = "none";
   }
+
+  // The host can turn contraction timing off for the family link — the server then
+  // sends none at all, and this hides the whole timing block.
+  const showTiming = state.show_contractions !== false;
+  document.getElementById("timing").style.display = showTiming ? "" : "none";
 
   const done = state.contractions.filter(c => c.end);
   const last = done[done.length - 1];
