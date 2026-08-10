@@ -253,7 +253,9 @@ function render() {
     if (!url) return "";
     const clean = url.split("?")[0].toLowerCase();
     return (clean.endsWith(".mp4") || clean.endsWith(".mov") || clean.endsWith(".m4v"))
-      ? `<video src="${url}" controls playsinline preload="metadata"></video>`
+      // #t=0.1 makes the browser seek to the first frame and paint it as a poster —
+      // without it the player is just a blank box until you hit play.
+      ? `<video src="${url}#t=0.1" controls playsinline preload="metadata" muted></video>`
       : `<img src="${url}" alt="">`;
   };
   document.getElementById("feed").innerHTML = state.updates.map(u => `
