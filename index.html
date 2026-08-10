@@ -158,6 +158,9 @@ async function fetchState() {
   if (!r || !r.is_sharing) return null;      // token invalid or sharing stopped
   return {
     is_sharing: r.is_sharing,
+    // Carried through so the timing block can be hidden when the host turns
+    // contraction sharing off — without this it reads as undefined ("on").
+    show_contractions: r.show_contractions !== false,
     birth: r.birth || null,   // present only once the user announces it
     contractions: (r.contractions || [])
       .map(c => ({ start: c.start_time, end: c.end_time }))
