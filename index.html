@@ -44,6 +44,22 @@
   .entry .time { font-size:12px; font-weight:600; letter-spacing:0.04em; color:var(--muted); margin-bottom:8px; }
   .entry .text { font-size:16px; line-height:1.4; }
   .entry img, .entry video { width:100%; border-radius:14px; margin-bottom:8px; display:block; }
+  /* Play badge so a video reads as a video at a glance — the poster frame alone
+     looks like a still photo. Fades out while playing. */
+  .vidwrap { position:relative; }
+  .vidwrap .playbadge {
+    position:absolute; top:0; left:0; right:0; bottom:8px; margin:auto;
+    width:60px; height:60px; border-radius:50%;
+    background:rgba(0,0,0,0.45); backdrop-filter:blur(2px);
+    display:flex; align-items:center; justify-content:center;
+    pointer-events:none; transition:opacity .18s ease;
+  }
+  .vidwrap .playbadge::after {
+    content:""; margin-left:4px;
+    border-style:solid; border-width:11px 0 11px 18px;
+    border-color:transparent transparent transparent #fff;
+  }
+  .vidwrap.playing .playbadge { opacity:0; }
   .foot { text-align:center; color:var(--muted); font-size:12px; margin-top:30px; line-height:1.5; }
   .ended { text-align:center; color:var(--sub); font-size:15px; margin-top:40px; }
   .arrival { text-align:center; background:var(--card); border-radius:24px; padding:28px 20px; margin-bottom:22px; }
@@ -255,7 +271,7 @@ function render() {
     return (clean.endsWith(".mp4") || clean.endsWith(".mov") || clean.endsWith(".m4v"))
       // #t=0.1 makes the browser seek to the first frame and paint it as a poster —
       // without it the player is just a blank box until you hit play.
-      ? `<video src="${url}#t=0.1" controls playsinline preload="metadata" muted></video>`
+      ? `<div class="vidwrap"><video src="${url}#t=0.1" controls playsinline preload="metadata"></video><span class="playbadge"></span></div>`
       : `<img src="${url}" alt="">`;
   };
   document.getElementById("feed").innerHTML = state.updates.map(u => `
@@ -264,6 +280,15 @@ function render() {
       ${mediaHtml(u.photo)}
       ${u.text ? `<div class="text">${escapeHtml(u.text)}</div>` : ""}
     </div>`).join("") || `<div class="entry"><div class="text" style="color:var(--sub)">No updates yet.</div></div>`;
+
+  // Badge is decorative only — the native controls still handle playback.
+  document.querySelectorAll("#feed .vidwrap").forEach(w => {
+    const v = w.querySelector("video");
+    if (!v) return;
+    v.addEventListener("play",  () => w.classList.add("playing"));
+    v.addEventListener("pause", () => w.classList.remove("playing"));
+    v.addEventListener("ended", () => w.classList.remove("playing"));
+  });
 }
 
 function tick() {
