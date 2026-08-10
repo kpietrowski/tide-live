@@ -114,8 +114,8 @@ function timeStr(d) {
   const t = date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   // Always show the date too (matches the app) — a bare time is ambiguous once
   // labor runs past midnight, and family checking in later can't tell "when".
-  const d = date.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
-  return d + " · " + t;
+  const day = date.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+  return day + " · " + t;
 }
 
 // Break detection — must mirror Swift `Session.classifiedGaps` exactly so the
