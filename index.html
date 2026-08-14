@@ -163,6 +163,11 @@ function classifyGaps(done) {
 let state = null;      // { contractions:[{start,end}], updates:[{timestamp,text,photo_url}], is_sharing, active_start }
 let activeStart = null;
 let feedSig = null;     // last-rendered feed contents; guards the media-bearing rebuild
+// The "session has ended" message replaces the whole layout. Keep a pristine
+// copy so a session that resumes can put it back — otherwise every later
+// render throws on the elements it wiped, and the follower sees a dead page
+// until they think to reload.
+const MAIN_HTML = document.getElementById("main").innerHTML;
 
 async function fetchState() {
   if (DEMO) return demoState();
@@ -197,7 +202,14 @@ function render() {
     document.getElementById("main").innerHTML =
       `<div class="ended">This session has ended.<br>Thanks for following along. 💛</div>`;
     document.getElementById("footState").textContent = "";
+    feedSig = null;              // force a full rebuild if sharing resumes
     return;
+  }
+  // Sharing resumed after an "ended" screen wiped the layout — restore it
+  // before drawing into elements that no longer exist.
+  if (!document.getElementById("feed")) {
+    document.getElementById("main").innerHTML = MAIN_HTML;
+    feedSig = null;
   }
   // Arrival celebration — shown only when the user has announced the birth.
   const arrivalEl = document.getElementById("arrival");
