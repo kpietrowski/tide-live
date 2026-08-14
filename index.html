@@ -162,6 +162,7 @@ function classifyGaps(done) {
 
 let state = null;      // { contractions:[{start,end}], updates:[{timestamp,text,photo_url}], is_sharing, active_start }
 let activeStart = null;
+let feedSig = null;     // last-rendered feed contents; guards the media-bearing rebuild
 
 async function fetchState() {
   if (DEMO) return demoState();
@@ -270,25 +271,36 @@ function render() {
     const clean = url.split("?")[0].toLowerCase();
     return (clean.endsWith(".mp4") || clean.endsWith(".mov") || clean.endsWith(".m4v"))
       // #t=0.1 makes the browser seek to the first frame and paint it as a poster —
-      // without it the player is just a blank box until you hit play.
-      ? `<div class="vidwrap"><video src="${url}#t=0.1" controls playsinline preload="metadata"></video><span class="playbadge"></span></div>`
+      // without it the player is just a blank box until you hit play. That poster
+      // costs a range request per video, so it's worth it once; preload="metadata"
+      // on top of it made every video fetch on sight whether or not anyone watched.
+      ? `<div class="vidwrap"><video src="${url}#t=0.1" controls playsinline preload="none"></video><span class="playbadge"></span></div>`
       : `<img src="${url}" alt="">`;
   };
-  document.getElementById("feed").innerHTML = state.updates.map(u => `
-    <div class="entry">
-      <div class="time">${timeStr(u.timestamp)}</div>
-      ${mediaHtml(u.photo)}
-      ${u.text ? `<div class="text">${escapeHtml(u.text)}</div>` : ""}
-    </div>`).join("") || `<div class="entry"><div class="text" style="color:var(--sub)">No updates yet.</div></div>`;
+  // Rebuilding this every poll re-created every <img> and <video> on the page,
+  // four times a minute, for as long as a family sat watching. Each new element
+  // re-fetches its source, so a handful of photos turned into gigabytes of egress
+  // off a few megabytes of stored media. Only touch the DOM when the feed has
+  // actually changed.
+  const sig = JSON.stringify(state.updates.map(u => [u.timestamp, u.text, u.photo]));
+  if (sig !== feedSig) {
+    feedSig = sig;
+    document.getElementById("feed").innerHTML = state.updates.map(u => `
+      <div class="entry">
+        <div class="time">${timeStr(u.timestamp)}</div>
+        ${mediaHtml(u.photo)}
+        ${u.text ? `<div class="text">${escapeHtml(u.text)}</div>` : ""}
+      </div>`).join("") || `<div class="entry"><div class="text" style="color:var(--sub)">No updates yet.</div></div>`;
 
-  // Badge is decorative only — the native controls still handle playback.
-  document.querySelectorAll("#feed .vidwrap").forEach(w => {
-    const v = w.querySelector("video");
-    if (!v) return;
-    v.addEventListener("play",  () => w.classList.add("playing"));
-    v.addEventListener("pause", () => w.classList.remove("playing"));
-    v.addEventListener("ended", () => w.classList.remove("playing"));
-  });
+    // Badge is decorative only — the native controls still handle playback.
+    document.querySelectorAll("#feed .vidwrap").forEach(w => {
+      const v = w.querySelector("video");
+      if (!v) return;
+      v.addEventListener("play",  () => w.classList.add("playing"));
+      v.addEventListener("pause", () => w.classList.remove("playing"));
+      v.addEventListener("ended", () => w.classList.remove("playing"));
+    });
+  }
 }
 
 function tick() {
