@@ -107,7 +107,35 @@ const CONFIG = {
 };
 const params = new URLSearchParams(location.search);
 const TOKEN = params.get("t") || "";
-const DEMO = params.get("demo") === "1" || !CONFIG.supabaseUrl;
+
+// Demo ONLY when explicitly asked for.
+//
+// This used to fall back to demo whenever the config was missing, which meant a
+// deploy that forgot to inject it showed every family invented contractions and
+// a fabricated birth announcement — on a page a mother had sent them during
+// labour — with no error and nothing to notice. The file in the repo has no
+// config in it, so that was one missed step away at all times.
+//
+// Misconfiguration now refuses to render instead. A page that says something is
+// wrong is recoverable; a page confidently showing someone else's invented
+// labour is not.
+const DEMO = params.get("demo") === "1";
+const MISCONFIGURED = !DEMO && !CONFIG.supabaseUrl;
+
+// Shown in place of the feed when config is absent. Deliberately plain: the
+// people who see it are family waiting on news, and the honest message is that
+// the page is broken — not a cheerful empty state implying nothing has happened.
+if (MISCONFIGURED) {
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.innerHTML =
+      '<div style="max-width:520px;margin:22vh auto;padding:0 24px;text-align:center;' +
+      'font:16px/1.6 -apple-system,BlinkMacSystemFont,sans-serif;color:#3D2E28">' +
+      '<div style="font-size:1.3rem;font-weight:600;margin-bottom:8px">This page isn\u2019t loading</div>' +
+      '<div style="color:#8A7A72">Something is wrong on our end \u2014 this isn\u2019t your link. ' +
+      'Please try again shortly.</div></div>';
+  });
+  console.error("live.html: window.__SUPABASE_URL__ was not injected at deploy.");
+}
 
 function fmt(sec) {
   if (sec == null) return "—";
@@ -119,9 +147,14 @@ function applyWho(state) {
   // "Katie's labor" when she's told us her name; generic otherwise.
   const el = document.getElementById("who");
   if (!el) return;
+  // A custom title replaces the whole thing; the derived form only applies when
+  // she hasn't set one. Deriving from a name can't express "Jak & Lena's Baby"
+  // — it would render that as "…Baby's labor".
   const n = (state && state.host_name || "").trim();
-  el.textContent = n ? `${n}'s labor` : "Following along";
-  document.title = n ? `${n}'s labor — Tide` : "Tide — Live";
+  const custom = (state && state.page_title || "").trim();
+  const heading = custom || (n ? `${n}'s labor` : "Following along");
+  el.textContent = heading;
+  document.title = custom ? `${custom} — Tide` : (n ? `${n}'s labor — Tide` : "Tide — Live");
 }
 
 function timeStr(d) {
@@ -171,6 +204,7 @@ const MAIN_HTML = document.getElementById("main").innerHTML;
 
 async function fetchState() {
   if (DEMO) return demoState();
+  if (MISCONFIGURED) throw new Error("live page is missing its backend config");
   // Read through the token-scoped `feed` function only — never the tables
   // directly. Presenting a wrong/absent token reveals nothing, so no one can
   // enumerate other families' sessions with the public key.
@@ -184,6 +218,7 @@ async function fetchState() {
     // silently reads as undefined further down (this bit host_name and
     // show_contractions already).
     host_name: r.host_name || null,
+    page_title: r.page_title || null,
     // Hides the timing block when the host turns contraction sharing off.
     show_contractions: r.show_contractions !== false,
     birth: r.birth || null,   // present only once the user announces it
